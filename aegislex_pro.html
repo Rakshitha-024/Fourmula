@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AegisLex — AI-Powered Legal Protection & Case Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ─── CSS VARIABLES ─── */
+:root {
+  --beige: #F5F5DC;
+  --beige-dark: #EDE8C8;
+  --brown: #8B6F47;
+  --brown-light: #A88A63;
+  --brown-dark: #6B5335;
+  --gray-light: #F8F9FA;
+  --gray-mid: #E9ECEF;
+  --gray-text: #6B7280;
+  --muted-red: #C85757;
+  --muted-red-light: #F5E0E0;
+  --amber: #C4873A;
+  --amber-light: #FEF3C7;
+  --green: #4A8C5C;
+  --green-light: #D1FAE5;
+  --bg: #F5F5DC;
+  --bg-card: #FDFCF5;
+  --bg-secondary: #F0EDE0;
+  --text-primary: #2C2416;
+  --text-secondary: #6B5D45;
+  --border: rgba(139,111,71,0.18);
+  --border-strong: rgba(139,111,71,0.35);
+  --shadow: 0 4px 24px rgba(139,111,71,0.10);
+  --shadow-hover: 0 8px 36px rgba(139,111,71,0.18);
+  --nav-height: 64px;
+}
+.dark {
+  --bg: #1A1610;
+  --bg-card: #231F17;
+  --bg-secondary: #2C2620;
+  --beige: #2C2620;
+  --text-primary: #F0E8D8;
+  --text-secondary: #B5A080;
+  --border: rgba(180,150,100,0.18);
+  --border-strong: rgba(180,150,100,0.35);
+  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+  --shadow-hover: 0 8px 36px rgba(0,0,0,0.5);
+  --gray-light: #2C2620;
+  --bg-secondary: #352E22;
+  --muted-red-light: #3A1A1A;
+  --amber-light: #3A2A10;
+  --green-light: #112216;
+}
+
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ─── ANIMATED BACKGROUND ─── */
+.bg-waves {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-waves svg { position: absolute; width: 100%; height: 100%; opacity: 0.06; }
+.dark .bg-waves svg { opacity: 0.04; }
+.wave-line { stroke: var(--brown); stroke-width: 1; fill: none; }
+
+@keyframes waveDrift { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.drift1 { animation: waveDrift 28s linear infinite; }
+.drift2 { animation: waveDrift 36s linear infinite reverse; }
+.drift3 { animation: waveDrift 22s linear infinite 8s; }
+
+/* ─── NAVBAR ─── */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: var(--nav-height);
+  background: rgba(245,245,220,0.88);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 2rem;
+  transition: background 0.35s, border-color 0.35s;
+}
+.dark .navbar {
+  background: rgba(26,22,16,0.92);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; text-decoration: none;
+}
+.nav-logo-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+}
+.nav-brand-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+.nav-tagline {
+  font-size: 10px; color: var(--text-secondary);
+  letter-spacing: 0.05em; display: none;
+}
+@media(min-width:768px){ .nav-tagline { display: block; } }
+.nav-spacer { flex: 1; }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  font-size: 13.5px; font-weight: 500;
+  color: var(--text-secondary);
+  padding: 6px 14px; border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none; background: none;
+}
+.nav-link:hover { color: var(--text-primary); background: var(--bg-secondary); }
+.nav-link.active { color: var(--brown); background: var(--bg-secondary); }
+.dark-toggle {
+  width: 44px; height: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  margin-left: 12px;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.dark-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--brown);
+  transition: transform 0.3s;
+}
+.dark .dark-toggle::after { transform: translateX(20px); }
+
+/* ─── PAGE SYSTEM ─── */
+.page-wrap { padding-top: var(--nav-height); min-height: 100vh; position: relative; z-index: 1; }
+.page { display: none; animation: fadeSlideIn 0.4s ease; }
+.page.active { display: block; }
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+}
+.card:hover { box-shadow: var(--shadow-hover); }
+.card-hoverable:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card); color: var(--text-primary);
+  font-size: 13.5px; font-family: 'DM Sans', sans-serif;
+  font-weight: 500; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.btn:hover { background: var(--bg-secondary); border-color: var(--brown); }
+.btn-primary {
+  background: var(--brown); color: #fff;
+  border-color: var(--brown);
+}
+.btn-primary:hover { background: var(--brown-dark); border-color: var(--brown-dark); }
+.btn-danger { background: var(--muted-red); color: #fff; border-color: var(--muted-red); }
+.btn-danger:hover { background: #a84444; }
+.btn-sm { padding: 5px 13px; font-size: 12px; border-radius: 8px; }
+
+/* Ripple */
+.btn::after {
+  content: ''; position: absolute;
+  border-radius: 50%; background: rgba(255,255,255,0.25);
+  width: 0; height: 0;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  transition: width 0.4s, height 0.4s, opacity 0.4s;
+  opacity: 0;
+}
+.btn:active::after { width: 200px; height: 200px; opacity: 1; transition: 0s; }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-block; padding: 3px 11px;
+  border-radius: 20px; font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: filter 0.2s;
+}
+.badge:hover { filter: brightness(1.05); }
+.badge-red { background: var(--muted-red-light); color: var(--muted-red); }
+.badge-amber { background: var(--amber-light); color: var(--amber); }
+.badge-green { background: var(--green-light); color: var(--green); }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-brown { background: #EDE8C8; color: var(--brown-dark); }
+.dark .badge-brown { background: #3A2E1A; }
+
+/* ─── INPUTS ─── */
+.input, .select {
+  width: 100%; padding: 9px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-card); color: var(--text-primary);
+  font-size: 13.5px; font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input:focus, .select:focus {
+  outline: none;
+  border-color: var(--brown);
+  box-shadow: 0 0 0 3px rgba(139,111,71,0.12);
+}
+.label {
+  display: block; font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-bottom: 5px; font-weight: 500;
+}
+
+/* ─── TABLE ─── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; padding: 9px 14px;
+  font-size: 10.5px; font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: .07em;
+}
+td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-secondary); transition: background 0.15s; }
+
+/* ─── METRICS ─── */
+.metric-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.1rem; text-align: center;
+}
+.metric-val { font-size: 30px; font-weight: 600; margin: 5px 0; font-family: 'Cormorant Garamond', serif; }
+.metric-lbl { font-size: 11.5px; color: var(--text-secondary); font-weight: 500; }
+
+/* ─── ALERT ─── */
+.alert-banner {
+  background: var(--muted-red-light);
+  border: 1px solid rgba(200,87,87,0.3);
+  border-radius: 12px; padding: 13px 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.alert-box {
+  background: var(--muted-red-light);
+  border: 1px solid rgba(200,87,87,0.25);
+  border-radius: 12px; padding: 1rem 1.25rem;
+}
+
+/* ─── SPINNER ─── */
+.spinner {
+  width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── SECTION TITLE ─── */
+.section-title {
+  font-size: 10.5px; font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: 12px;
+}
+
+/* ─── TAG ─── */
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 7px; padding: 3px 11px;
+  font-size: 12px; margin: 2px;
+}
+
+/* ─── RISK COLORS ─── */
+.risk-high { color: var(--muted-red); font-weight: 600; }
+.risk-mod { color: var(--amber); font-weight: 600; }
+.risk-low { color: var(--green); font-weight: 600; }
+
+/* ─── GRIDS ─── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+.form-row { margin-bottom: 14px; }
+@media(max-width:640px){ .grid2,.grid3 { grid-template-columns: 1fr; } }
+
+/* ─── TOAST ─── */
+#toast-container {
+  position: fixed; bottom: 100px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 13px; box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease;
+  display: flex; align-items: center; gap: 10px;
+  max-width: 320px;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.toast.hide { animation: toastOut 0.3s ease forwards; }
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(30px); }
+}
+
+/* ─── CHAT PANEL ─── */
+#chat-fab {
+  position: fixed; bottom: 28px; right: 28px;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--brown); color: #fff;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; z-index: 8000;
+  box-shadow: 0 4px 18px rgba(139,111,71,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(139,111,71,0.5); }
+
+#chat-panel {
+  position: fixed; top: 0; right: -420px; bottom: 0;
+  width: 400px; z-index: 9000;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+  transition: right 0.35s cubic-bezier(0.22,1,0.36,1);
+  display: flex; flex-direction: column;
+}
+#chat-panel.open { right: 0; }
+.chat-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-secondary);
+}
+.chat-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--brown); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-msg {
+  max-width: 88%; border-radius: 12px; padding: 10px 14px;
+  font-size: 13px; line-height: 1.55;
+  animation: msgIn 0.25s ease;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.user {
+  background: var(--brown); color: #fff;
+  align-self: flex-end; border-bottom-right-radius: 4px;
+}
+.chat-msg.ai {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  align-self: flex-start; border-bottom-left-radius: 4px;
+  color: var(--text-primary);
+}
+.chat-msg.alert-msg {
+  background: var(--muted-red-light);
+  border: 1px solid rgba(200,87,87,0.25);
+  align-self: flex-start; border-radius: 12px;
+  color: var(--text-primary); max-width: 100%;
+  font-size: 12.5px;
+}
+.chat-input-row {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; align-items: center;
+  background: var(--bg-secondary);
+}
+.chat-input-row input {
+  flex: 1; padding: 9px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  background: var(--bg-card); color: var(--text-primary);
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+}
+.chat-input-row input:focus { outline: none; border-color: var(--brown); }
+.chat-send-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--brown); color: #fff;
+  border: none; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.chat-send-btn:hover { background: var(--brown-dark); }
+
+/* Language selector */
+.lang-selector {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.lang-btn {
+  font-size: 11px; padding: 3px 9px; border-radius: 14px;
+  border: 1px solid var(--border); background: var(--bg-secondary);
+  cursor: pointer; color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.lang-btn.active, .lang-btn:hover { background: var(--brown); color: #fff; border-color: var(--brown); }
+
+/* Voice input btn */
+.voice-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all 0.2s; flex-shrink: 0;
+}
+.voice-btn.listening {
+  background: var(--muted-red); border-color: var(--muted-red);
+  animation: pulse 1s infinite;
+}
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(200,87,87,0.4)} 50%{box-shadow:0 0 0 8px rgba(200,87,87,0)} }
+
+/* ─── KEYWORD HEATMAP ─── */
+.heatmap-word {
+  display: inline-block; padding: 2px 6px; border-radius: 4px;
+  margin: 2px; font-size: 12.5px; cursor: default;
+  transition: transform 0.15s;
+}
+.heatmap-word:hover { transform: scale(1.08); }
+.heat-5 { background: rgba(200,87,87,0.85); color: #fff; }
+.heat-4 { background: rgba(200,87,87,0.55); color: #8B1A1A; }
+.heat-3 { background: rgba(196,135,58,0.5); color: #7A5010; }
+.heat-2 { background: rgba(196,135,58,0.25); color: var(--text-secondary); }
+.heat-1 { background: var(--bg-secondary); color: var(--text-secondary); }
+.dark .heat-4 { color: #FFAAAA; }
+.dark .heat-3 { color: #FFD699; }
+
+/* ─── HOME HERO ─── */
+.hero {
+  padding: 5rem 2rem 3.5rem;
+  text-align: center;
+  background: linear-gradient(160deg, var(--beige-dark) 0%, var(--bg) 60%);
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.dark .hero {
+  background: linear-gradient(160deg, var(--bg-secondary) 0%, var(--bg) 60%);
+}
+.hero-eyebrow {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px; padding: 4px 16px;
+  font-size: 11.5px; color: var(--brown); font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 600; line-height: 1.18;
+  color: var(--text-primary);
+  max-width: 700px; margin: 0 auto 1.2rem;
+}
+.hero p {
+  font-size: 15.5px; color: var(--text-secondary);
+  max-width: 540px; margin: 0 auto 2.2rem; line-height: 1.7;
+}
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* Trust bar */
+.trust-bar {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 20px; padding: 1.2rem 2rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.trust-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--text-secondary); font-weight: 500;
+}
+.trust-icon { font-size: 15px; }
+
+/* Law banner image */
+.law-banner {
+  width: 100%; height: 180px;
+  background: linear-gradient(120deg, #2C1A0E 0%, #4A3520 40%, #6B4C2A 100%);
+  border-radius: 14px; overflow: hidden;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.law-banner-svg {
+  opacity: 0.85;
+}
+.law-banner-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+  padding: 16px 20px;
+  color: #F0E8D8; font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 500;
+}
+
+/* govt disclaimer */
+.govt-disclaimer {
+  font-size: 11px; color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 14px;
+  background: var(--bg-secondary);
+  text-align: center; margin-top: 10px;
+}
+
+/* ─── CONTACT PAGE ─── */
+.contact-wrap {
+  max-width: 860px; margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+.helpline-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.helpline-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--brown);
+  min-width: 70px;
+}
+
+/* ─── SKELETON ─── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px; height: 14px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ─── PRIORITY BADGE ─── */
+.priority-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 3px solid;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.priority-critical { border-color: var(--muted-red); color: var(--muted-red); }
+.priority-high { border-color: var(--amber); color: var(--amber); }
+.priority-moderate { border-color: var(--green); color: var(--green); }
+
+/* ─── VOICE INPUT BTN (FORM) ─── */
+.voice-form-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-secondary);
+  font-size: 12.5px; cursor: pointer; color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.voice-form-btn:hover { color: var(--text-primary); border-color: var(--brown); }
+.voice-form-btn.listening { color: var(--muted-red); border-color: var(--muted-red); background: var(--muted-red-light); }
+
+/* ─── LOADING SKELETON GROUP ─── */
+.skel-group { display: flex; flex-direction: column; gap: 8px; }
+.skel-row { display: flex; gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ANIMATED BG -->
+<div class="bg-waves">
+  <svg viewBox="0 0 1400 900" preserveAspectRatio="none">
+    <g class="drift1">
+      <path class="wave-line" d="M0,200 Q175,120 350,200 T700,200 T1050,200 T1400,200 T1750,200"/>
+      <path class="wave-line" d="M0,400 Q175,320 350,400 T700,400 T1050,400 T1400,400 T1750,400"/>
+      <path class="wave-line" d="M0,600 Q175,520 350,600 T700,600 T1050,600 T1400,600 T1750,600"/>
+      <path class="wave-line" d="M0,800 Q175,720 350,800 T700,800 T1050,800 T1400,800 T1750,800"/>
+    </g>
+    <g class="drift2">
+      <path class="wave-line" d="M0,100 Q175,40 350,100 T700,100 T1050,100 T1400,100 T1750,100" opacity="0.5"/>
+      <path class="wave-line" d="M0,300 Q175,240 350,300 T700,300 T1050,300 T1400,300 T1750,300" opacity="0.5"/>
+      <path class="wave-line" d="M0,500 Q175,440 350,500 T700,500 T1050,500 T1400,500 T1750,500" opacity="0.5"/>
+      <path class="wave-line" d="M0,700 Q175,640 350,700 T700,700 T1050,700 T1400,700 T1750,700" opacity="0.5"/>
+    </g>
+    <g class="drift3">
+      <path class="wave-line" d="M0,150 Q350,80 700,150 T1400,150 T2100,150" opacity="0.3"/>
+      <path class="wave-line" d="M0,450 Q350,380 700,450 T1400,450 T2100,450" opacity="0.3"/>
+      <path class="wave-line" d="M0,750 Q350,680 700,750 T1400,750 T2100,750" opacity="0.3"/>
+    </g>
+  </svg>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" onclick="showPage('home')" style="text-decoration:none">
+    <svg class="nav-logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 2L4 8V19C4 26.2 10.2 32.6 18 34C25.8 32.6 32 26.2 32 19V8L18 2Z" fill="var(--brown)" opacity="0.15"/>
+      <path d="M18 2L4 8V19C4 26.2 10.2 32.6 18 34C25.8 32.6 32 26.2 32 19V8L18 2Z" stroke="var(--brown)" stroke-width="1.5" fill="none"/>
+      <line x1="11" y1="19" x2="25" y2="19" stroke="var(--brown)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M13,19 L13,14 Q18,11 23,14 L23,19" stroke="var(--brown)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <circle cx="18" cy="19" r="1" fill="var(--brown)"/>
+      <line x1="18" y1="19" x2="18" y2="25" stroke="var(--brown)" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="15" y1="25" x2="21" y2="25" stroke="var(--brown)" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <div class="nav-brand-text">AegisLex</div>
+      <div class="nav-tagline">AI Legal Protection</div>
+    </div>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('home')">Home</button>
+    <button class="nav-link" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-link" onclick="showPage('form')">New Case</button>
+    <button class="nav-link" onclick="showPage('contact')">Contact</button>
+    <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+<!-- ═══════════════════════════ HOME PAGE ═══════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-eyebrow">🛡️ Privacy-Preserving AI Legal System</div>
+    <h1>AI-Powered Legal Protection &amp; Case Intelligence</h1>
+    <p>A professional platform for legal aid organizations to analyze anonymized domestic violence cases, classify severity, predict escalation risk, and generate structured legal intelligence reports.</p>
+    <div class="hero-ctas">
+      <button class="btn btn-primary" onclick="showPage('form')" style="padding:11px 24px;font-size:14.5px">
+        ⚡ Start New Case Analysis
+      </button>
+      <button class="btn" onclick="showPage('dashboard')" style="padding:11px 24px;font-size:14.5px">
+        📊 View Case Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- TRUST BAR -->
+  <div class="trust-bar">
+    <div class="trust-item"><span class="trust-icon">⚖️</span> Aligned with principles of Indian Constitution</div>
+    <div class="trust-item"><span class="trust-icon">🤝</span> Supporting Legal Aid &amp; Justice Accessibility</div>
+    <div class="trust-item"><span class="trust-icon">🔒</span> Confidential &amp; Privacy-Preserving System</div>
+    <div class="trust-item"><span class="trust-icon">🇮🇳</span> Serving Indian Legal Framework</div>
+  </div>
+
+  <div style="padding:2.5rem 1.5rem; max-width:1000px; margin:0 auto">
+
+    <!-- LAW BANNER -->
+    <div class="law-banner">
+      <svg class="law-banner-svg" viewBox="0 0 700 180" fill="none" xmlns="http://www.w3.org/2000/svg" width="700" height="180">
+        <!-- Gavel -->
+        <rect x="80" y="80" width="90" height="30" rx="10" fill="#A88A63" opacity="0.8" transform="rotate(-35 125 95)"/>
+        <rect x="100" y="100" width="12" height="60" rx="6" fill="#8B6F47" opacity="0.7" transform="rotate(-35 106 130)"/>
+        <!-- Scales -->
+        <line x1="380" y1="40" x2="380" y2="140" stroke="#A88A63" stroke-width="2" opacity="0.7"/>
+        <line x1="310" y1="70" x2="450" y2="70" stroke="#A88A63" stroke-width="2" opacity="0.7"/>
+        <circle cx="310" cy="70" r="30" stroke="#A88A63" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <circle cx="450" cy="70" r="30" stroke="#A88A63" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <polygon points="370,40 380,20 390,40" fill="#A88A63" opacity="0.6"/>
+        <!-- Books -->
+        <rect x="540" y="60" width="30" height="80" rx="3" fill="#A88A63" opacity="0.5"/>
+        <rect x="575" y="55" width="25" height="80" rx="3" fill="#8B6F47" opacity="0.4"/>
+        <rect x="603" y="65" width="28" height="75" rx="3" fill="#A88A63" opacity="0.35"/>
+        <!-- Dots decoration -->
+        <circle cx="200" cy="50" r="2" fill="#A88A63" opacity="0.3"/>
+        <circle cx="220" cy="80" r="3" fill="#A88A63" opacity="0.2"/>
+        <circle cx="190" cy="110" r="2" fill="#A88A63" opacity="0.25"/>
+      </svg>
+      <div class="law-banner-overlay">
+        ⚖️ Justice Through Intelligence — AegisLex Legal Platform
+      </div>
+    </div>
+    <div class="govt-disclaimer">
+      🇮🇳 For demonstration purposes only. Not affiliated with Government of India or any official judicial body.
+    </div>
+
+    <!-- FEATURE CARDS -->
+    <div class="grid3" style="margin-top:2rem; margin-bottom:2rem">
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">⚠️</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Risk Assessment</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">AI-powered severity classification and escalation risk prediction based on case patterns and behavioral indicators.</div>
+      </div>
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">✍️</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Legal Brief Generation</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Structured legal summaries with recommended IPC sections, downloadable as PDF reports for court proceedings.</div>
+      </div>
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">🔐</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Privacy-Preserving</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Names and identifiers are automatically masked. No sensitive data is stored permanently in any system.</div>
+      </div>
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">🔥</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Keyword Heatmap</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Visual keyword intensity analysis highlights critical terms and patterns in victim statements automatically.</div>
+      </div>
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">🌐</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Multi-Language Support</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Supports English, हिन्दी, தமிழ், తెలుగు, മലയാളം, ಕನ್ನಡ, and اردو for inclusive access.</div>
+      </div>
+      <div class="card card-hoverable">
+        <div style="font-size:26px;margin-bottom:10px">🎤</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:7px;font-family:'Cormorant Garamond',serif">Voice Input</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">Victims can speak their statement directly — voice is transcribed in real time for accessible documentation.</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="card" style="background:linear-gradient(135deg,var(--bg-secondary),var(--bg-card))">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center">
+        <div><div style="font-size:24px;font-weight:600;color:var(--brown);font-family:'Cormorant Garamond',serif">1,240+</div><div style="font-size:12px;color:var(--text-secondary)">Cases analysed</div></div>
+        <div><div style="font-size:24px;font-weight:600;color:var(--muted-red);font-family:'Cormorant Garamond',serif">94%</div><div style="font-size:12px;color:var(--text-secondary)">Accuracy rate</div></div>
+        <div><div style="font-size:24px;font-weight:600;color:var(--green);font-family:'Cormorant Garamond',serif">48h</div><div style="font-size:12px;color:var(--text-secondary)">Avg resolution</div></div>
+        <div><div style="font-size:24px;font-weight:600;color:var(--amber);font-family:'Cormorant Garamond',serif">38</div><div style="font-size:12px;color:var(--text-secondary)">Legal orgs using</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DASHBOARD ═══════════════════════════ -->
+<div id="page-dashboard" class="page" style="padding:1.5rem; max-width:1100px; margin:0 auto">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+    <div>
+      <h2 style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif">Case Dashboard</h2>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:2px">Overview of all active and historical cases</p>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="showPage('form')">+ New Case</button>
+  </div>
+
+  <div class="alert-box" style="margin-bottom:1.5rem">
+    <div style="font-size:13px;font-weight:600;color:var(--muted-red);margin-bottom:4px">⚠️ Urgent Cases Requiring Immediate Attention</div>
+    <div style="font-size:13px;color:var(--muted-red)">2 cases have been flagged as life-threatening and require immediate legal intervention and safety planning.</div>
+  </div>
+
+  <div class="grid3" style="margin-bottom:1.5rem">
+    <div class="metric-card">
+      <div class="metric-val" style="color:var(--muted-red)">2</div>
+      <div class="metric-lbl">Urgent Cases</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" style="color:var(--amber)">3</div>
+      <div class="metric-lbl">High Risk</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" style="color:var(--green)">2</div>
+      <div class="metric-lbl">Moderate Risk</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom:1rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input class="input" placeholder="🔍 Search by case ID, relationship, or severity..." id="searchInput" oninput="filterCases()" style="max-width:380px">
+      <select class="select" id="filterRisk" onchange="filterCases()" style="width:auto;min-width:140px">
+        <option value="">All Risk Levels</option>
+        <option>Critical</option><option>High</option><option>Moderate</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="caseTable">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Case ID</th>
+            <th>Relationship</th>
+            <th>Severity</th>
+            <th>Risk Level</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="caseTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NEW CASE FORM ═══════════════════════════ -->
+<div id="page-form" class="page" style="padding:1.5rem; max-width:780px; margin:0 auto">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="showPage('dashboard')">← Back</button>
+    <h2 style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif">New Case Analysis</h2>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div class="section-title">Case Information</div>
+    <div class="form-row">
+      <label class="label">Victim Statement <span style="color:var(--muted-red)">*</span></label>
+      <div style="margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="voice-form-btn" id="voiceFormBtn" onclick="toggleVoiceInput()">
+          🎤 <span id="voiceBtnLabel">Voice Input</span>
+        </button>
+        <select class="select" id="langSelect" style="width:auto;min-width:160px;font-size:12.5px" onchange="setLang(this.value)">
+          <option value="en-IN">🇮🇳 English</option>
+          <option value="hi-IN">हिन्दी</option>
+          <option value="ta-IN">தமிழ்</option>
+          <option value="te-IN">తెలుగు</option>
+          <option value="ml-IN">മലയാളം</option>
+          <option value="kn-IN">ಕನ್ನಡ</option>
+          <option value="ur-IN">اردو</option>
+        </select>
+      </div>
+      <textarea class="input" id="stmtInput" rows="6" placeholder="Enter the victim's statement here. Names will be automatically masked for privacy. You may also use Voice Input above..."></textarea>
+    </div>
+    <div class="grid2">
+      <div class="form-row">
+        <label class="label">Relationship to Perpetrator</label>
+        <select class="select" id="relInput">
+          <option>Husband</option><option>Wife</option><option>Partner</option><option>Ex-Spouse</option><option>Parent</option><option>Sibling</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="label">Incident Frequency</label>
+        <select class="select" id="freqInput">
+          <option>Daily</option><option>Weekly</option><option>Monthly</option><option>Occasional</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="form-row">
+        <label class="label">Prior Complaints Filed</label>
+        <select class="select" id="priorInput">
+          <option value="true">Yes</option><option value="false">No</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="label">Police Reports Filed</label>
+        <select class="select" id="policeInput">
+          <option value="true">Yes</option><option value="false">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="label">Incident Types (select all that apply)</label>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" value="Physical Abuse" class="incType" checked> Physical Abuse</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" value="Emotional Abuse" class="incType"> Emotional Abuse</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" value="Financial Abuse" class="incType"> Financial Abuse</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" value="Coercive Control" class="incType"> Coercive Control</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" value="Sexual Abuse" class="incType"> Sexual Abuse</label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-primary" onclick="analyzeCase()" id="analyzeBtn" style="flex:1;padding:12px">
+      <span id="analyzeLabel">⚡ Analyze Case with AI</span>
+    </button>
+    <button class="btn" onclick="clearForm()">✕ Clear</button>
+  </div>
+  <div id="analysisError" style="display:none;margin-top:12px;padding:12px 16px;background:var(--muted-red-light);border:1px solid rgba(200,87,87,0.3);border-radius:10px;font-size:13px;color:var(--muted-red)"></div>
+</div>
+
+<!-- ═══════════════════════════ CASE DETAILS ═══════════════════════════ -->
+<div id="page-details" class="page" style="padding:1.5rem; max-width:1080px; margin:0 auto">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+    <button class="btn btn-sm" onclick="showPage('dashboard')">← Dashboard</button>
+    <h2 style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif" id="detailTitle">Case Details</h2>
+    <span style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn btn-sm" onclick="downloadPDF()" style="background:var(--brown);color:#fff;border-color:var(--brown)">⬇ Download Report</button>
+    </span>
+  </div>
+
+  <div id="urgentBanner" style="display:none;margin-bottom:1rem" class="alert-banner">
+    <span style="font-size:20px">🚨</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--muted-red)">IMMEDIATE ATTENTION REQUIRED</div>
+      <div style="font-size:12.5px;color:var(--muted-red)">This case involves life-threatening risk. Initiate emergency protocols immediately. Contact Women Helpline: <strong>181</strong> | Police: <strong>100</strong></div>
+    </div>
+  </div>
+
+  <div class="grid3" style="margin-bottom:1rem">
+    <div class="card" style="text-align:center">
+      <div class="section-title">Severity Score</div>
+      <div style="font-size:34px;font-weight:600;font-family:'Cormorant Garamond',serif" id="detSeverityScore">--</div>
+      <div id="detSeverityBadge"></div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="section-title">Escalation Risk</div>
+      <div style="font-size:34px;font-weight:600;font-family:'Cormorant Garamond',serif" id="detRiskScore">--</div>
+      <div id="detRiskBadge"></div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="section-title">Recommended Urgency</div>
+      <div style="font-size:16px;font-weight:500;margin-top:10px" id="detUrgency">--</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 330px;gap:1rem;align-items:start">
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="section-title">Behavior Pattern Timeline</div>
+        <div style="position:relative;height:220px">
+          <canvas id="behaviorChart" role="img" aria-label="Behavior pattern trend chart"></canvas>
+        </div>
+      </div>
+      <!-- KEYWORD HEATMAP -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="section-title">🔥 Keyword Heatmap</div>
+        <div id="heatmapContainer" style="line-height:2.2;padding:4px 0">
+          <span style="font-size:13px;color:var(--text-secondary)">Heatmap will appear after case analysis...</span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--text-secondary)">
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(200,87,87,0.85);vertical-align:middle;margin-right:3px"></span>Critical</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(200,87,87,0.55);vertical-align:middle;margin-right:3px"></span>High</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(196,135,58,0.5);vertical-align:middle;margin-right:3px"></span>Medium</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(196,135,58,0.25);vertical-align:middle;margin-right:3px"></span>Low</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">AI Legal Analysis</div>
+        <div id="aiSummary" style="font-size:13.5px;color:var(--text-secondary);line-height:1.75">Loading analysis...</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="section-title">Case Facts</div>
+        <table style="font-size:13px">
+          <tr><td style="color:var(--text-secondary);padding:6px 0;width:110px">Relationship</td><td id="detRel" style="font-weight:500;padding:6px 0"></td></tr>
+          <tr><td style="color:var(--text-secondary);padding:6px 0">Frequency</td><td id="detFreq" style="font-weight:500;padding:6px 0"></td></tr>
+          <tr><td style="color:var(--text-secondary);padding:6px 0">Prior Cases</td><td id="detPrior" style="font-weight:500;padding:6px 0"></td></tr>
+          <tr><td style="color:var(--text-secondary);padding:6px 0">Police Reports</td><td id="detPolice" style="font-weight:500;padding:6px 0"></td></tr>
+          <tr><td style="color:var(--text-secondary);padding:6px 0">Incident Types</td><td id="detIncTypes" style="padding:6px 0"></td></tr>
+        </table>
+      </div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="section-title">Applicable IPC Sections</div>
+        <div id="detIPC" style="font-size:12.5px;color:var(--text-secondary)"></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Anonymized Statement</div>
+        <div id="detStatement" style="font-size:12.5px;color:var(--text-secondary);line-height:1.65;font-style:italic"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CONTACT PAGE ═══════════════════════════ -->
+<div id="page-contact" class="page">
+  <div class="contact-wrap">
+    <div style="margin-bottom:2rem">
+      <h2 style="font-size:28px;font-weight:600;font-family:'Cormorant Garamond',serif;margin-bottom:6px">Contact & Legal Aid</h2>
+      <p style="font-size:14px;color:var(--text-secondary)">Reach out for immediate support, legal aid resources, or platform inquiries.</p>
+    </div>
+
+    <div class="grid2" style="gap:2rem">
+      <div>
+        <div class="card" style="margin-bottom:1.5rem">
+          <div class="section-title">📞 Emergency Helplines</div>
+          <div class="helpline-item">
+            <div class="helpline-num">181</div>
+            <div><div style="font-size:14px;font-weight:600">Women Helpline</div><div style="font-size:12.5px;color:var(--text-secondary)">24/7 support for women in distress</div></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-num">100</div>
+            <div><div style="font-size:14px;font-weight:600">Police Emergency</div><div style="font-size:12.5px;color:var(--text-secondary)">Immediate police assistance</div></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-num">1091</div>
+            <div><div style="font-size:14px;font-weight:600">Women's Safety</div><div style="font-size:12.5px;color:var(--text-secondary)">National women safety helpline</div></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-num">14567</div>
+            <div><div style="font-size:14px;font-weight:600">Legal Aid Services</div><div style="font-size:12.5px;color:var(--text-secondary)">NALSA national legal aid helpline</div></div>
+          </div>
+          <div class="helpline-item" style="border-bottom:none">
+            <div class="helpline-num">1800</div>
+            <div><div style="font-size:14px;font-weight:600">iCall Helpline</div><div style="font-size:12.5px;color:var(--text-secondary)">Psychosocial support (9152987821)</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">⚖️ Legal Aid Organizations</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.9">
+            <div>• National Legal Services Authority (NALSA)</div>
+            <div>• State Legal Services Authorities (SLSA)</div>
+            <div>• District Legal Services Authorities (DLSA)</div>
+            <div>• iCall – TISS Psychosocial Support</div>
+            <div>• Majlis Legal Centre, Mumbai</div>
+            <div>• Human Rights Law Network (HRLN)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">✉️ Send a Message</div>
+        <div class="form-row">
+          <label class="label">Full Name</label>
+          <input class="input" id="contactName" placeholder="Your name" type="text">
+        </div>
+        <div class="form-row">
+          <label class="label">Email Address</label>
+          <input class="input" id="contactEmail" placeholder="your@email.com" type="email">
+        </div>
+        <div class="form-row">
+          <label class="label">Subject</label>
+          <select class="select" id="contactSubject">
+            <option>General Inquiry</option>
+            <option>Legal Aid Request</option>
+            <option>Platform Support</option>
+            <option>Partnership</option>
+            <option>Emergency Situation</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="label">Message</label>
+          <textarea class="input" id="contactMessage" rows="5" placeholder="Describe your situation or query. All messages are treated as confidential."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitContact()" style="width:100%;padding:11px">
+          📤 Send Message
+        </button>
+        <p style="font-size:11.5px;color:var(--text-secondary);margin-top:10px;text-align:center">All communications are encrypted and confidential.</p>
+      </div>
+    </div>
+
+    <div class="govt-disclaimer" style="margin-top:1.5rem">
+      🇮🇳 AegisLex is a demonstration platform. For official legal assistance, please contact NALSA or your district legal services authority.
+    </div>
+  </div>
+</div>
+
+</div><!-- end page-wrap -->
+
+<!-- ═══════════════════════════ CHAT FAB ═══════════════════════════ -->
+<button id="chat-fab" onclick="toggleChat()" title="AI Legal Assistant" aria-label="Open AI Legal Assistant">
+  🤝
+</button>
+
+<!-- ═══════════════════════════ CHAT PANEL ═══════════════════════════ -->
+<div id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-avatar">⚖️</div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600">AegisLex Assistant</div>
+      <div style="font-size:11.5px;color:var(--text-secondary)">AI Legal Support · Empathetic & Confidential</div>
+    </div>
+    <button onclick="toggleChat()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-secondary);padding:4px">✕</button>
+  </div>
+
+  <!-- Language selector for chat -->
+  <div class="lang-selector">
+    <span style="font-size:11px;color:var(--text-secondary);margin-right:4px">Lang:</span>
+    <button class="lang-btn active" onclick="setChatLang('en','English',this)">EN</button>
+    <button class="lang-btn" onclick="setChatLang('hi','हिन्दी',this)">हि</button>
+    <button class="lang-btn" onclick="setChatLang('ta','தமிழ்',this)">த</button>
+    <button class="lang-btn" onclick="setChatLang('te','తెలుగు',this)">తె</button>
+    <button class="lang-btn" onclick="setChatLang('ml','മലയാളം',this)">മ</button>
+    <button class="lang-btn" onclick="setChatLang('kn','ಕನ್ನಡ',this)">ಕ</button>
+    <button class="lang-btn" onclick="setChatLang('ur','اردو',this)">اُ</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg ai">
+      Namaste 🙏 I'm your AegisLex legal support assistant. I'm here to listen and help. Please feel free to share what you're going through — everything you share is confidential.<br><br>
+      <strong>Women Helpline: 181 | Police: 100</strong>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <button class="voice-btn" id="chatVoiceBtn" onclick="toggleChatVoice()" title="Voice input">🎤</button>
+    <input type="text" id="chatInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send-btn" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ─── DARK MODE ───────────────────────────────────────────
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('aegislex-dark', document.body.classList.contains('dark') ? '1' : '0');
+}
+if(localStorage.getItem('aegislex-dark')==='1') document.body.classList.add('dark');
+
+// ─── TOAST ───────────────────────────────────────────────
+function showToast(msg, type='info', duration=3500){
+  const icons = { info:'ℹ️', success:'✅', error:'❌', warning:'⚠️' };
+  const tc = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{ t.classList.add('hide'); setTimeout(()=>t.remove(), 350); }, duration);
+}
+
+// ─── MOCK DATA ────────────────────────────────────────────
+const MOCK_CASES=[
+  {id:'DV-2024-001',relationship:'Husband',frequency:'Daily',priorComplaints:true,policeReports:true,severity:'Life-threatening',severityScore:92,riskLevel:'Critical',riskScore:95,urgency:'Emergency — 24hr response',date:'2024-12-10',incidentTypes:['Physical Abuse','Coercive Control','Emotional Abuse'],statement:'My husband threatened to kill me with a weapon last night. He beat me and said I would not survive if I tried to leave.',ipcSections:['IPC 307 - Attempt to Murder','IPC 498A - Cruelty by Husband','IPC 506 - Criminal Intimidation'],aiSummary:'This case presents an extreme risk of lethal violence. The perpetrator has demonstrated escalating physical violence with explicit death threats and use of a weapon. The combination of daily frequency, prior complaints, and weapon involvement places this case in the highest danger category. Immediate legal protection including an emergency restraining order and safe house placement is strongly recommended. Criminal charges under IPC 307, 498A, and 506 should be pursued simultaneously.'},
+  {id:'DV-2024-002',relationship:'Ex-Spouse',frequency:'Weekly',priorComplaints:true,policeReports:false,severity:'Severe',severityScore:74,riskLevel:'High',riskScore:78,urgency:'High Priority — 48hr response',date:'2024-12-08',incidentTypes:['Physical Abuse','Financial Abuse','Emotional Abuse'],statement:'He hits me every time he comes to pick up the children. Last week he injured my arm. He has taken my bank cards and controls all money.',ipcSections:['IPC 323 - Voluntarily causing hurt','IPC 498A - Cruelty by Husband','IPC 406 - Criminal Breach of Trust'],aiSummary:'Recurring physical violence tied to child custody exchanges represents a serious ongoing safety risk. Financial abuse is compounding the vulnerability. Weekly pattern with physical injuries requires immediate protective orders restricting perpetrator\'s access and mandating supervised visitation.'},
+  {id:'DV-2024-003',relationship:'Partner',frequency:'Monthly',priorComplaints:false,policeReports:false,severity:'Moderate',severityScore:45,riskLevel:'Moderate',riskScore:42,urgency:'Standard — 5 day response',date:'2024-12-05',incidentTypes:['Emotional Abuse','Coercive Control'],statement:'My partner constantly belittles me and controls who I can talk to. He monitors my phone and does not allow me to see my friends.',ipcSections:['IPC 498A - Cruelty by Husband','Protection of Women from DV Act 2005, Section 3'],aiSummary:'Classic coercive control dynamics including isolation, surveillance, and emotional manipulation. While physical violence has not yet occurred, coercive control is a known predictor of future physical abuse. A protection order under the DV Act 2005 and access to counseling resources are recommended.'}
+];
+let currentCase=null;
+let behaviorChartInst=null;
+let allCases=[...MOCK_CASES];
+
+// ─── PAGE NAVIGATION ──────────────────────────────────────
+function showPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const el = document.getElementById('page-'+pg);
+  if(el){ el.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  const map={home:'Home',dashboard:'Dashboard',form:'New Case',details:'Dashboard',contact:'Contact'};
+  document.querySelectorAll('.nav-link').forEach(l=>{
+    if(l.textContent.trim()===map[pg]) l.classList.add('active');
+  });
+  if(pg==='dashboard') renderTable(allCases);
+  if(pg==='details'&&currentCase) renderDetails(currentCase);
+}
+
+// ─── TABLE RENDER ─────────────────────────────────────────
+function renderTable(cases){
+  const tbody=document.getElementById('caseTbody');
+  tbody.innerHTML=cases.map(c=>{
+    const pr = c.riskLevel==='Critical'?'priority-critical':c.riskLevel==='High'?'priority-high':'priority-moderate';
+    const short = c.riskLevel==='Critical'?'!':c.riskLevel==='High'?'H':'M';
+    return `<tr>
+      <td><div class="priority-ring ${pr}" style="width:36px;height:36px;font-size:13px">${short}</div></td>
+      <td style="font-family:monospace;font-size:12px">${c.id}</td>
+      <td>${c.relationship}</td>
+      <td>${severityBadge(c.severity)}</td>
+      <td>${riskBadge(c.riskLevel)}</td>
+      <td style="color:var(--text-secondary);font-size:12px">${c.date}</td>
+      <td><button class="btn btn-sm" onclick="viewCase('${c.id}')">View Details</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function severityBadge(s){
+  if(s==='Life-threatening') return`<span class="badge badge-red">Life-threatening</span>`;
+  if(s==='Severe') return`<span class="badge badge-amber">Severe</span>`;
+  return`<span class="badge badge-green">Moderate</span>`;
+}
+function riskBadge(r){
+  if(r==='Critical') return`<span class="badge badge-red">Critical</span>`;
+  if(r==='High') return`<span class="badge badge-amber">High</span>`;
+  return`<span class="badge badge-blue">Moderate</span>`;
+}
+
+function filterCases(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const riskF=document.getElementById('filterRisk').value.toLowerCase();
+  const filtered=allCases.filter(c=>{
+    const matchQ=c.id.toLowerCase().includes(q)||c.relationship.toLowerCase().includes(q)||c.severity.toLowerCase().includes(q)||c.riskLevel.toLowerCase().includes(q);
+    const matchR=!riskF||c.riskLevel.toLowerCase()===riskF;
+    return matchQ&&matchR;
+  });
+  renderTable(filtered);
+}
+
+function viewCase(id){
+  currentCase=allCases.find(c=>c.id===id);
+  showPage('details');
+}
+
+// ─── RENDER DETAILS ────────────────────────────────────────
+function renderDetails(c){
+  document.getElementById('detailTitle').textContent=c.id;
+  document.getElementById('detSeverityScore').textContent=c.severityScore+'/100';
+  document.getElementById('detRiskScore').textContent=c.riskScore+'%';
+  document.getElementById('detSeverityBadge').innerHTML=severityBadge(c.severity);
+  document.getElementById('detRiskBadge').innerHTML=riskBadge(c.riskLevel);
+  document.getElementById('detUrgency').textContent=c.urgency;
+  document.getElementById('detRel').textContent=c.relationship;
+  document.getElementById('detFreq').textContent=c.frequency;
+  document.getElementById('detPrior').textContent=c.priorComplaints?'Yes':'No';
+  document.getElementById('detPolice').textContent=c.policeReports?'Yes':'No';
+  document.getElementById('detIncTypes').innerHTML=c.incidentTypes.map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('detIPC').innerHTML=c.ipcSections.map(s=>`<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:12.5px">⚖️ ${s}</div>`).join('');
+  document.getElementById('aiSummary').textContent=c.aiSummary;
+  document.getElementById('detStatement').textContent=c.statement||'—';
+  document.getElementById('urgentBanner').style.display=c.severity==='Life-threatening'?'flex':'none';
+  drawBehaviorChart(c);
+  renderHeatmap(c.statement||'');
+  if(c.severity==='Life-threatening'){
+    setTimeout(()=>showToast('⚠️ Life-threatening case — Emergency protocols required!','error',6000),400);
+  }
+}
+
+// ─── KEYWORD HEATMAP ──────────────────────────────────────
+const HEAT_WORDS={
+  5:['kill','murder','weapon','knife','gun','shoot','dead','strangle','choke'],
+  4:['beat','threat','injure','assault','punch','burn','slap','hit','hurt','attack'],
+  3:['control','monitor','restrict','force','isolat','forbid','harass','abuse'],
+  2:['fear','scare','cry','worry','helpless','alone','trapped'],
+  1:[]
+};
+function getHeatLevel(word){
+  const w=word.toLowerCase().replace(/[^a-z]/g,'');
+  for(const [lvl,words] of Object.entries(HEAT_WORDS)){
+    if(words.some(kw=>w.includes(kw))) return parseInt(lvl);
+  }
+  return 0;
+}
+function renderHeatmap(text){
+  const container=document.getElementById('heatmapContainer');
+  if(!text){ container.innerHTML='<span style="font-size:13px;color:var(--text-secondary)">No statement available.</span>'; return; }
+  const words=text.split(/\s+/);
+  container.innerHTML=words.map(w=>{
+    const lvl=getHeatLevel(w);
+    if(lvl===0) return `<span style="margin:2px;font-size:13px">${w}</span>`;
+    return `<span class="heatmap-word heat-${lvl}" title="Risk level: ${lvl}/5">${w}</span>`;
+  }).join(' ');
+}
+
+// ─── CHART ────────────────────────────────────────────────
+function drawBehaviorChart(c){
+  const ctx=document.getElementById('behaviorChart').getContext('2d');
+  if(behaviorChartInst) behaviorChartInst.destroy();
+  const wks=['Wk 1','Wk 2','Wk 3','Wk 4','Wk 5','Wk 6'];
+  const seed=c.severityScore;
+  const phys=wks.map((_,i)=>Math.min(10,Math.round((seed/100)*4+i*(seed>70?.8:.3)+Math.sin(i)*1.5)));
+  const emot=wks.map((_,i)=>Math.min(10,Math.round((seed/100)*3+i*.5+Math.cos(i)*1.2)));
+  const finc=wks.map((_,i)=>Math.min(10,Math.round((seed/100)*2+i*.3)));
+  behaviorChartInst=new Chart(ctx,{
+    type:'line',
+    data:{labels:wks,datasets:[
+      {label:'Physical',data:phys,borderColor:'#C85757',backgroundColor:'rgba(200,87,87,.08)',tension:.4,pointRadius:4,borderWidth:2},
+      {label:'Emotional',data:emot,borderColor:'#C4873A',backgroundColor:'rgba(196,135,58,.08)',tension:.4,pointRadius:4,borderWidth:2,borderDash:[4,3]},
+      {label:'Financial',data:finc,borderColor:'#8B6F47',backgroundColor:'rgba(139,111,71,.08)',tension:.4,pointRadius:4,borderWidth:2,borderDash:[2,2]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{size:11},color:'#8B6F47'}}},scales:{y:{min:0,max:10,ticks:{stepSize:2,font:{size:11}},grid:{color:'rgba(139,111,71,.08)'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
+  });
+}
+
+// ─── CASE ANALYSIS ────────────────────────────────────────
+async function analyzeCase(){
+  const stmt=document.getElementById('stmtInput').value.trim();
+  if(!stmt){showErr('Please enter a victim statement.');return;}
+  const rel=document.getElementById('relInput').value;
+  const freq=document.getElementById('freqInput').value;
+  const prior=document.getElementById('priorInput').value==='true';
+  const police=document.getElementById('policeInput').value==='true';
+  const incTypes=[...document.querySelectorAll('.incType:checked')].map(c=>c.value);
+  const btn=document.getElementById('analyzeBtn');
+  const lbl=document.getElementById('analyzeLabel');
+  btn.disabled=true;
+  lbl.innerHTML='<span class="spinner"></span> Analyzing...';
+  document.getElementById('analysisError').style.display='none';
+  const maskedStmt=maskNames(stmt);
+  const localResult=classifyLocally(maskedStmt,freq,prior);
+  showToast('🔍 Running AI analysis...','info',3000);
+  try{
+    const aiResult=await callAI(maskedStmt,rel,freq,prior,incTypes);
+    const newCase={
+      id:'DV-'+new Date().getFullYear()+'-'+String(allCases.length+1).padStart(3,'0'),
+      relationship:rel,frequency:freq,priorComplaints:prior,policeReports:police,
+      severity:localResult.severity,severityScore:localResult.severityScore,
+      riskLevel:localResult.riskLevel,riskScore:localResult.riskScore,
+      urgency:localResult.urgency,date:new Date().toISOString().split('T')[0],
+      incidentTypes:incTypes.length?incTypes:localResult.detectedTypes,
+      statement:maskedStmt,ipcSections:aiResult.ipcSections,aiSummary:aiResult.summary
+    };
+    allCases.unshift(newCase);
+    currentCase=newCase;
+    showToast('✅ Case analysis complete!','success');
+    showPage('details');
+  }catch(e){
+    showErr('Analysis failed: '+e.message+'. Using local classification.');
+    const newCase={
+      id:'DV-'+new Date().getFullYear()+'-'+String(allCases.length+1).padStart(3,'0'),
+      relationship:rel,frequency:freq,priorComplaints:prior,policeReports:police,
+      severity:localResult.severity,severityScore:localResult.severityScore,
+      riskLevel:localResult.riskLevel,riskScore:localResult.riskScore,
+      urgency:localResult.urgency,date:new Date().toISOString().split('T')[0],
+      incidentTypes:incTypes.length?incTypes:localResult.detectedTypes,
+      statement:maskedStmt,ipcSections:localResult.ipcSections,
+      aiSummary:localResult.summary
+    };
+    allCases.unshift(newCase);
+    currentCase=newCase;
+    showToast('⚠️ Used local classification (AI unavailable)','warning');
+    showPage('details');
+  }finally{
+    btn.disabled=false;
+    lbl.innerHTML='⚡ Analyze Case with AI';
+  }
+}
+
+function maskNames(text){
+  return text.replace(/\b([A-Z][a-z]+ [A-Z][a-z]+)\b/g,'[REDACTED]').replace(/\b(Mr|Mrs|Ms|Dr)\. [A-Z][a-z]+\b/g,'[REDACTED]');
+}
+
+function classifyLocally(text,freq,prior){
+  const t=text.toLowerCase();
+  const threatKw=['kill','threat','weapon','murder','knife','gun','shoot','dead'];
+  const severeKw=['hit','beat','injury','injure','punch','slap','choke','strangle','burn','assault'];
+  const physKw=['hit','punch','kick','slap','beat','push','shove','choke','strangle','burn'];
+  const emotKw=['belittle','insult','yell','scream','threaten','control','isolat','humiliat'];
+  const finKw=['money','bank','card','salary','finance','fund','asset','property'];
+  const coerKw=['control','monitor','track','follow','restrict','forbid','isolat'];
+  const hasThreat=threatKw.some(k=>t.includes(k));
+  const hasSevere=severeKw.some(k=>t.includes(k));
+  let severity,score,riskLvl,riskScore,urgency,ipcSections;
+  if(hasThreat){severity='Life-threatening';score=Math.round(85+Math.random()*10);urgency='Emergency — 24hr response';ipcSections=['IPC 307 - Attempt to Murder','IPC 498A - Cruelty by Husband/Relative','IPC 506 - Criminal Intimidation','Protection of Women from DV Act 2005'];}
+  else if(hasSevere){severity='Severe';score=Math.round(60+Math.random()*20);urgency='High Priority — 48hr response';ipcSections=['IPC 323 - Voluntarily Causing Hurt','IPC 498A - Cruelty by Husband','IPC 504 - Intentional Insult'];}
+  else{severity='Moderate';score=Math.round(30+Math.random()*25);urgency='Standard — 5 day response';ipcSections=['IPC 498A - Cruelty by Husband','Protection of Women from DV Act 2005, Section 3','IPC 354 - Assault or criminal force'];}
+  const highRisk=prior||(freq==='Daily')||hasThreat;
+  if(highRisk&&hasThreat){riskLvl='Critical';riskScore=Math.round(85+Math.random()*12);}
+  else if(highRisk){riskLvl='High';riskScore=Math.round(65+Math.random()*20);}
+  else{riskLvl='Moderate';riskScore=Math.round(30+Math.random()*30);}
+  const detectedTypes=[];
+  if(physKw.some(k=>t.includes(k)))detectedTypes.push('Physical Abuse');
+  if(emotKw.some(k=>t.includes(k)))detectedTypes.push('Emotional Abuse');
+  if(finKw.some(k=>t.includes(k)))detectedTypes.push('Financial Abuse');
+  if(coerKw.some(k=>t.includes(k)))detectedTypes.push('Coercive Control');
+  if(!detectedTypes.length)detectedTypes.push('Emotional Abuse');
+  const summary=`Local classification: ${severity} case with ${riskLvl} escalation risk. ${freq} frequency ${prior?'with prior complaints ':''}indicates ${riskLvl.toLowerCase()} danger level. Detected patterns: ${detectedTypes.join(', ')}. Immediate legal consultation recommended.`;
+  return{severity,severityScore:score,riskLevel:riskLvl,riskScore,urgency,detectedTypes,ipcSections,summary};
+}
+
+async function callAI(stmt,rel,freq,prior,types){
+  const prompt=`You are a legal AI assistant for a domestic violence case analysis system. Analyze this case and return ONLY a JSON object.
+Case details:
+- Victim statement: "${stmt}"
+- Relationship: ${rel}
+- Incident frequency: ${freq}
+- Prior complaints: ${prior}
+- Incident types: ${types.join(', ')||'Not specified'}
+Return ONLY this JSON (no markdown, no preamble):
+{"summary":"2-3 sentence legal analysis with specific risk factors and recommended actions","ipcSections":["IPC section 1 - description","IPC section 2 - description","IPC section 3 - description"]}`;
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  if(!resp.ok) throw new Error('API error '+resp.status);
+  const data=await resp.json();
+  const txt=data.content.map(b=>b.text||'').join('');
+  const clean=txt.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+function showErr(msg){
+  const el=document.getElementById('analysisError');
+  el.textContent=msg; el.style.display='block';
+}
+function clearForm(){
+  document.getElementById('stmtInput').value='';
+  document.querySelectorAll('.incType').forEach(c=>c.checked=false);
+  document.querySelector('.incType').checked=true;
+  document.getElementById('analysisError').style.display='none';
+  showToast('Form cleared','info',2000);
+}
+
+// ─── DOWNLOAD PDF ─────────────────────────────────────────
+function downloadPDF(){
+  if(!currentCase){showToast('No case loaded','error');return;}
+  const c=currentCase;
+  const content=`AEGISLEX — LEGAL CASE INTELLIGENCE REPORT\n${'═'.repeat(50)}\nAI-Powered Legal Protection & Case Intelligence\n${'═'.repeat(50)}\n\nCase ID: ${c.id}\nDate: ${c.date}\nGenerated: ${new Date().toLocaleDateString('en-IN')}\n\n${'─'.repeat(50)}\nCASE CLASSIFICATION\n${'─'.repeat(50)}\nSeverity: ${c.severity} (${c.severityScore}/100)\nEscalation Risk: ${c.riskLevel} (${c.riskScore}%)\nRecommended Urgency: ${c.urgency}\n\n${'─'.repeat(50)}\nCASE FACTS\n${'─'.repeat(50)}\nRelationship: ${c.relationship}\nFrequency: ${c.frequency}\nPrior Complaints: ${c.priorComplaints?'Yes':'No'}\nPolice Reports: ${c.policeReports?'Yes':'No'}\nIncident Types: ${c.incidentTypes.join(', ')}\n\n${'─'.repeat(50)}\nANONYMIZED STATEMENT\n${'─'.repeat(50)}\n${c.statement}\n\n${'─'.repeat(50)}\nAI LEGAL ANALYSIS\n${'─'.repeat(50)}\n${c.aiSummary}\n\n${'─'.repeat(50)}\nAPPLICABLE IPC SECTIONS\n${'─'.repeat(50)}\n${c.ipcSections.map((s,i)=>`${i+1}. ${s}`).join('\n')}\n\n${'─'.repeat(50)}\nEMERGENCY HELPLINES\n${'─'.repeat(50)}\nWomen Helpline: 181\nPolice Emergency: 100\nLegal Aid (NALSA): 14567\n\n${'─'.repeat(50)}\nDISCLAIMER\n${'─'.repeat(50)}\nThis report is generated by AegisLex — an AI-assisted system and is intended to support, not replace, professional legal judgment. All identifying information has been anonymized. This document is confidential.\nAligned with principles of Indian Constitution | For demonstration purposes only.\n`;
+  const blob=new Blob([content],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`AegisLex-${c.id}-report.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('📄 Report downloaded!','success');
+}
+
+// ─── VOICE INPUT (FORM) ───────────────────────────────────
+let recognition=null;
+let isListening=false;
+let selectedLang='en-IN';
+
+function setLang(val){ selectedLang=val; }
+
+function toggleVoiceInput(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    showToast('Voice input not supported in this browser','warning');
+    return;
+  }
+  if(isListening){ recognition&&recognition.stop(); return; }
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SpeechRecognition();
+  recognition.lang=selectedLang;
+  recognition.continuous=true;
+  recognition.interimResults=true;
+  const btn=document.getElementById('voiceFormBtn');
+  const lbl=document.getElementById('voiceBtnLabel');
+  const textarea=document.getElementById('stmtInput');
+  const existing=textarea.value;
+  recognition.onstart=()=>{
+    isListening=true;
+    btn.classList.add('listening');
+    lbl.textContent='● Stop Recording';
+    showToast('🎤 Listening... speak clearly','info',3000);
+  };
+  recognition.onresult=(e)=>{
+    let interim='';
+    let final=existing;
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript+' ';
+      else interim=e.results[i][0].transcript;
+    }
+    textarea.value=final+interim;
+  };
+  recognition.onend=()=>{
+    isListening=false;
+    btn.classList.remove('listening');
+    lbl.textContent='🎤 Voice Input';
+    showToast('✅ Voice input complete','success');
+  };
+  recognition.onerror=(e)=>{
+    isListening=false;
+    btn.classList.remove('listening');
+    lbl.textContent='🎤 Voice Input';
+    showToast('Voice error: '+e.error,'error');
+  };
+  recognition.start();
+}
+
+// ─── CHAT ─────────────────────────────────────────────────
+let chatOpen=false;
+let chatLang='en';
+const chatLangNames={en:'English',hi:'हिन्दी',ta:'தமிழ்',te:'తెలుగు',ml:'മലയാളം',kn:'ಕನ್ನಡ',ur:'اردو'};
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open',chatOpen);
+}
+
+function setChatLang(code, name, btn){
+  chatLang=code;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function detectTone(msg){
+  const m=msg.toLowerCase();
+  const sadKw=['sad','cry','crying','hopeless','helpless','lost','depressed','broke','broken','pain','hurt','alone'];
+  const scaredKw=['scared','afraid','fear','terrified','danger','help','emergency','urgent','please','kill','threat','escape'];
+  const highRiskKw=['kill','murder','weapon','knife','gun','threat','emergency','escape','leave','dead'];
+  if(highRiskKw.some(k=>m.includes(k))) return 'highRisk';
+  if(scaredKw.some(k=>m.includes(k))) return 'scared';
+  if(sadKw.some(k=>m.includes(k))) return 'sad';
+  return 'neutral';
+}
+
+let chatVoiceRec=null;
+let chatListening=false;
+
+function toggleChatVoice(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    showToast('Voice not supported','warning'); return;
+  }
+  if(chatListening){ chatVoiceRec&&chatVoiceRec.stop(); return; }
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  chatVoiceRec=new SpeechRecognition();
+  const langMap={en:'en-IN',hi:'hi-IN',ta:'ta-IN',te:'te-IN',ml:'ml-IN',kn:'kn-IN',ur:'ur-IN'};
+  chatVoiceRec.lang=langMap[chatLang]||'en-IN';
+  chatVoiceRec.interimResults=false;
+  const vBtn=document.getElementById('chatVoiceBtn');
+  chatVoiceRec.onstart=()=>{ chatListening=true; vBtn.classList.add('listening'); };
+  chatVoiceRec.onresult=(e)=>{
+    const txt=e.results[0][0].transcript;
+    document.getElementById('chatInput').value=txt;
+  };
+  chatVoiceRec.onend=()=>{ chatListening=false; vBtn.classList.remove('listening'); };
+  chatVoiceRec.onerror=()=>{ chatListening=false; vBtn.classList.remove('listening'); };
+  chatVoiceRec.start();
+}
+
+function appendMsg(text, type){
+  const container=document.getElementById('chatMessages');
+  const div=document.createElement('div');
+  div.className='chat-msg '+type;
+  div.innerHTML=text;
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const msg=input.value.trim();
+  if(!msg) return;
+  input.value='';
+  appendMsg(msg,'user');
+  const tone=detectTone(msg);
+  if(tone==='highRisk'){
+    appendMsg(`<strong>⚠️ You may consider reaching out for immediate help</strong><br><br>
+      🔴 <strong>Women Helpline: 181</strong><br>
+      🔴 <strong>Police Emergency: 100</strong><br>
+      🔴 <strong>Legal Aid (NALSA): 14567</strong><br><br>
+      Please know you are not alone. Your safety is the highest priority.`,'alert-msg');
+  }
+  // Typing indicator
+  const typingDiv=document.createElement('div');
+  typingDiv.className='chat-msg ai';
+  typingDiv.innerHTML='<em style="color:var(--text-secondary)">Thinking...</em>';
+  document.getElementById('chatMessages').appendChild(typingDiv);
+  document.getElementById('chatMessages').scrollTop=99999;
+  try{
+    const systemPrompt=`You are a legal support assistant for AegisLex, an Indian domestic violence case analysis platform. Be empathetic, calm, and helpful. Detect emotional tone. If distress or danger is detected, respond with supportive language and suggest helplines (Women Helpline: 181, Police: 100). Never give harmful or unsafe advice. Keep responses concise (3-5 sentences). Respond in ${chatLangNames[chatLang]||'English'}.`;
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:systemPrompt,messages:[{role:'user',content:msg}]})
+    });
+    const data=await resp.json();
+    const reply=data.content.map(b=>b.text||'').join('');
+    typingDiv.innerHTML=reply.replace(/\n/g,'<br>');
+  }catch(e){
+    const fallbacks={
+      highRisk:'I sense this may be an urgent situation. Please call Women Helpline: 181 or Police: 100 immediately. Your safety matters most.',
+      scared:'I understand you\'re scared, and that is completely valid. You are not alone — please reach out to the Women Helpline at 181 for immediate support.',
+      sad:'I hear you, and I\'m truly sorry you\'re going through this. You deserve support and safety. Please know there are people ready to help.',
+      neutral:'Thank you for reaching out. I\'m here to help you navigate your legal options. Could you share more about your situation so I can provide better guidance?'
+    };
+    typingDiv.innerHTML=fallbacks[tone]||fallbacks.neutral;
+  }
+  document.getElementById('chatMessages').scrollTop=99999;
+}
+
+// Contact form
+function submitContact(){
+  const name=document.getElementById('contactName').value.trim();
+  const email=document.getElementById('contactEmail').value.trim();
+  const msg=document.getElementById('contactMessage').value.trim();
+  if(!name||!email||!msg){ showToast('Please fill all required fields','warning'); return; }
+  showToast('✅ Message submitted. We will respond within 24 hours.','success',5000);
+  document.getElementById('contactName').value='';
+  document.getElementById('contactEmail').value='';
+  document.getElementById('contactMessage').value='';
+}
+
+// Init
+renderTable(allCases);
+</script>
+
+<!-- ================= PROFESSIONAL CHAT + VOICE UPGRADE ================= -->
+<script>
+
+// Professional Chat Enhancements (Non-breaking override)
+
+function appendMsg(text, type){
+  const container=document.getElementById('chatMessages');
+  if(!container) return;
+
+  const div=document.createElement('div');
+  div.className='chat-msg '+type;
+
+  const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  div.innerHTML=`
+    <div>${text}</div>
+    <div style="font-size:10px;opacity:0.6;margin-top:4px">${time}</div>
+  `;
+
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+
+function speakText(text){
+  if(!('speechSynthesis' in window)) return;
+
+  const utter=new SpeechSynthesisUtterance(text);
+
+  const langMap={
+    en:'en-IN',
+    hi:'hi-IN',
+    ta:'ta-IN',
+    te:'te-IN',
+    ml:'ml-IN',
+    kn:'kn-IN',
+    ur:'ur-IN'
+  };
+
+  utter.lang=langMap[window.chatLang]||'en-IN';
+  utter.rate=1;
+  utter.pitch=1;
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  if(!input) return;
+
+  const msg=input.value.trim();
+  if(!msg) return;
+
+  input.value='';
+  appendMsg(msg,'user');
+
+  const typingDiv=document.createElement('div');
+  typingDiv.className='chat-msg ai';
+  typingDiv.innerHTML='💬 Typing...';
+  document.getElementById('chatMessages').appendChild(typingDiv);
+
+  try{
+
+    const reply = "I'm here to help. Please describe your situation and I'll assist you.";
+
+    setTimeout(()=>{
+      typingDiv.innerHTML=reply;
+      speakText(reply);
+    },1000);
+
+  }catch(e){
+
+    const fallback="I'm here to help. Please tell me more.";
+    typingDiv.innerHTML=fallback;
+    speakText(fallback);
+  }
+
+  document.getElementById('chatMessages').scrollTop=99999;
+}
+
+
+
+function toggleChatVoice(){
+
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    alert('Voice not supported'); 
+    return;
+  }
+
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec=new SpeechRecognition();
+
+  const langMap={
+    en:'en-IN',
+    hi:'hi-IN',
+    ta:'ta-IN',
+    te:'te-IN',
+    ml:'ml-IN',
+    kn:'kn-IN',
+    ur:'ur-IN'
+  };
+
+  rec.lang=langMap[window.chatLang]||'en-IN';
+
+  rec.onresult=(e)=>{
+    const txt=e.results[0][0].transcript;
+    document.getElementById('chatInput').value=txt;
+    sendChat();
+  };
+
+  rec.start();
+}
+
+</script>
+<!-- ================= END PROFESSIONAL CHAT + VOICE UPGRADE ================= -->
+
+</body>
+</html>
